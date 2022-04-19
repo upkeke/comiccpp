@@ -1,15 +1,21 @@
 ﻿#include "readwin.h"
 
-
 #pragma execution_character_set("utf-8")
 
 ReadWin::ReadWin(QWidget *parent)
     : QMainWindow{parent},ui(new Ui::ReadWin)
 {
     ui->setupUi(this);
+    ui->zhanglist->setMaximumWidth(75);
+
+    ui->zhanglist->sizeHint();
     //setWindowFlags(Qt::FramelessWindowHint);
-    init_ui();  //初始化 ui,和一些成员
-    get_comic_dir(R"(E:\Qt\projuct\ComicByCPP\comic\魔王勇者\第1话)"); //获得路径
+    //初始化 ui,和一些成员
+    isShow=false;
+    ui->zhanglist->hide();
+    scene = new QGraphicsScene(this);
+    //get_comic_dir(R"(E:\Qt\projuct\ComicByCPP\comic\魔王勇者\第1话)"); //获得路径
+    get_comic_dir(R"(E:\Qt\projuct\ComicByCPP\comic\监狱学园\1)");
     paint_img();  //添加图片
     //是否隐藏 章节页 属性栏
     connect(ui->actionDock,&QAction::triggered,this,[&](){
@@ -48,13 +54,6 @@ ReadWin::~ReadWin()
     delete ui;
 }
 
-void ReadWin::init_ui()
-{
-    isShow=false;
-    ui->zhanglist->hide();
-    scene = new QGraphicsScene(this);
-}
-
 void ReadWin::get_comic_dir(QString path)
 {
 
@@ -64,22 +63,24 @@ void ReadWin::get_comic_dir(QString path)
     {
         //qDebug()<<i;
         if(i=="."||i=="..") continue;
-        file_list.append(path+"\\"+i);
-        ui->listWidget->addItem(i);
+        page_path_list.append(path+"\\"+i);
+        //ui->listWidget->addItem(i);
+        //装入 widget
+        fill_child_list(i,true);
     }
 }
 
 void ReadWin::paint_img()
 {
     int w,h;
-    QPixmap pix(file_list[0]);
+    QPixmap pix(page_path_list[0]);
     w=pix.width();
     //h=pix.height();
     resize(w,500);
     h=0;
     for(int i=0;i<7;++i)
     {
-        QPixmap pix(file_list[i]);
+        QPixmap pix(page_path_list[i]);
        //qDebug()<<file_list[i];
         QGraphicsPixmapItem * pixitem = new QGraphicsPixmapItem(pix);
 
@@ -101,7 +102,6 @@ void ReadWin::paint_img()
     //ui->myview->centerOn(this->width()/2,this->height()/2);
     ui->myview->centerOn(0,0);//场景的的0，0绝对到不了视图的中心，但是这样可以避免菜单工具栏的误差，保证场景视图左上角重合
 }
-
 void ReadWin::get_item()
 {
     int y=ui->myview->verticalScrollBar()->value();
@@ -119,6 +119,29 @@ void ReadWin::get_item()
     ui->statusbar->showMessage(str);
 
 }
+//填充listwidget 元素是widget， 方法二
+void ReadWin::fill_child_list(QString str,bool flag)
+{
+    QListWidgetItem * firItem = new QListWidgetItem;
+    listItem *endItem= new listItem(str,flag);
+    firItem->setSizeHint(QSize(endItem->width(),endItem->height()));
+    ui->listWidget->addItem(firItem);
+    ui->listWidget->setItemWidget(firItem,endItem);
+}
+
+void ReadWin::get_data()
+{
+    QString order = QString("select *from ComicTitle");
+    if(!query.exec(order))
+        qDebug()<<"获取失败"<<db.lastError();
+    else{
+        qDebug()<<"获取成功";
+//        while(query.next()){
+//            query.value()
+//        }
+    }
+}
+
 
 void ReadWin::mousePressEvent(QMouseEvent *event)
 {
