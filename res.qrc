@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icon/home粉.png</file>
+        <file>icon/home黑.png</file>
+        <file>icon/icons8-打开视图-100.png</file>
+        <file>icon/icons8-设置-100.png</file>
+        <file>icon/列表 细红.png</file>
+        <file>icon/列表黑.png</file>
+        <file>icon/列表红.png</file>
+        <file>icon/列表细黑.png</file>
+        <file>icon/取消全屏_o.png</file>
+        <file>icon/全屏.png</file>
+        <file>icon/五角星.png</file>
+        <file>icon/五角星full.png</file>
+        <file>icon/消息.png</file>
+        <file>data/data.db</file>
+    </qresource>
+</RCC>

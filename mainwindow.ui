@@ -16,6 +16,9 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
+     <widget class="QListWidget" name="listWidget"/>
+    </item>
+    <item>
      <widget class="QPushButton" name="pushButton">
       <property name="text">
        <string>子窗口</string>
@@ -32,7 +35,7 @@
     <item>
      <widget class="QPushButton" name="pushButton_2">
       <property name="text">
-       <string>test</string>
+       <string>测试数据库的连接</string>
       </property>
      </widget>
     </item>

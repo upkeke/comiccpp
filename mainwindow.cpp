@@ -3,42 +3,37 @@
 
 #pragma execution_character_set("utf-8")
 
-QSqlDatabase db; //定义数据库
-QSqlQuery query;
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow),childwin(new ReadWin(this))
+    , ui(new Ui::MainWindow),readwin(new ReadWin(this))
 {
     ui->setupUi(this);
-    //连接数据库
-    db = QSqlDatabase::addDatabase("QSQLITE");
-    //db.setDatabaseName(":/data/datacc.db");
-    //file:///E:/Qt/projuct/ComicByCPP/data/data.db
-    //db.setDatabaseName("file:///E:/Qt/projuct/ComicByCPP/data/comicdata.db");
-    db.setDatabaseName("datacc.db");
-    if(!db.open()) qDebug()<<"open error---"<<db.lastError();
-
+    qDebug()<<"this mainwin";
+    refresh_title_data();
+    ui->listWidget->addItems(title_list);
+    connect(ui->listWidget,&QListWidget::itemDoubleClicked,readwin
+            ,[&](QListWidgetItem *item){
+        hide();
+        readwin->fill_diect_win(item);
+    });
     //进入子窗口
-    connect(ui->pushButton,&QPushButton::clicked,childwin,[&](){
-        childwin->show();
+    connect(ui->pushButton,&QPushButton::clicked,readwin,[&](){
+        readwin->show();
         hide();
     });
     //监听子窗口的信号，判断自己是否显示
-    connect(childwin,&ReadWin::backMainScene,this,&MainWindow::show);
+    connect(readwin,&ReadWin::backMainScene,this,&MainWindow::show);
 }
 MainWindow::~MainWindow()
 {
     delete ui;
+    db.close();
+    qDebug()<<"数据库关闭";
 }
+//test 按钮
 void MainWindow::on_pushButton_2_clicked()
 {
-#if 0
-    QString create =("CREATE TABLE ComicTitle (title TEXT,"
-                     "absolute_path	TEXT,ischapter	INTEGER DEFAULT 1,"
-                     "PRIMARY KEY(title))");
-    if(!query.exec(create))
-        qDebug()<<"创建失败"<<db.lastError();
-#endif
     QString order = QString("select * from ComicTitle;");
     if(!query.exec(order))
         qDebug()<<"defect"<<db.lastError();
@@ -51,15 +46,13 @@ void MainWindow::on_pushButton_2_clicked()
         }
     }
 }
-
-
+//插入
 void MainWindow::on_pushButton_3_clicked()
 {
-    QString add_data = QString("insert into ComicTitle(title,"
-                               "absolute_path,ischapter)"
+    QString add_data = QString("insert into title(title,"
+                               "title_path,ischapter)"
                                " values('监狱学园','c:/vv',1)");
     if(!query.exec(add_data))
         qDebug()<<"插入失败";
-
 }
 

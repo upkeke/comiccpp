@@ -13,6 +13,7 @@ class listItem : public QWidget
 
 public:
     explicit listItem(QString str,bool flag,QWidget *parent = nullptr);
+
     ~listItem();
     bool flag;
     void display_favor(); //显示 收藏
