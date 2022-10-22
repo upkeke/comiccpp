@@ -13,11 +13,11 @@ class listItem : public QWidget
     Q_OBJECT
 
 public:
-    explicit listItem(const QString &str,bool flag,QWidget *parent = nullptr);
+    explicit listItem(const QString &name,bool flag,QWidget *parent = nullptr);
 
     ~listItem();
     bool flag;
-    QString str;
+    QString name;
     void display_favor(); //显示 收藏
 private slots:
     void on_radioButton_toggled(bool checked);

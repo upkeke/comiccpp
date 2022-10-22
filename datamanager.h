@@ -11,6 +11,8 @@
 
 #include<memory>
 using std::shared_ptr;
+using std::map;
+
 
 #pragma execution_character_set("utf-8")
 
@@ -31,14 +33,14 @@ public:
     //Key: chapter
     //value: / 漫画名：title,/ 章节：chapter,/ 章节路径：chap_path(primary Key),
     //页数：page_count,/备注，如果没有章节，则数据插入表page中对应的页数
-    QMap<QString,Chapter> chap_map;
-    QList<QString> chap_list; //辅助上面map表   /index对应 第几章 / 章节名/
+    map<QString,Chapter,decltype(myqstrcmp)*> chap_map;
+
 
     // 漫画下每个章节的所有page的集合
     //Key: page
     //value: / 漫画名：title,/ 章节：chapter,/ 页码 page 页码路径：page_path,
-    QMap<QString,Page> page_map;
-    QList<QString> page_list; //辅助上面map表 /元素 页码  /index对应 第几章 / 页数名/
+    map<QString,Page,decltype(myqstrcmp)*> page_map;
+
     static shared_ptr<DataManager> instance_db();
 
 
@@ -47,8 +49,9 @@ public:
     void refresh_title_data(); // 读取数据库title表数据到容器中
     void refresh_chapter_data(const QString &title); // 读取数据库chapter表数据到容器中
     // 读取数据库page表数据到容器中,有章节从表chapter中找，没有则在表page中找
-    void refresh_page_data(const QString &tit_chap,bool ischapter);
-
+    //void refresh_page_data(const QString &tit_chap,bool ischapter);
+    void down_pageData_byTitle(const QString &title);
+    void down_pageData_byChap(const QString &chapter);
 
     void add_title(const QString & titlepath); //添加漫画名的信息到数据库和容器中
     void change_title_num(const QString & title);

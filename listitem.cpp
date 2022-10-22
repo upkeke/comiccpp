@@ -3,7 +3,7 @@
 
 listItem::listItem(const QString &str, bool flag,QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::listItem),str(str),flag(flag)
+    ui(new Ui::listItem),name(str),flag(flag)
 {
     ui->setupUi(this);
     ui->label->setText(str);

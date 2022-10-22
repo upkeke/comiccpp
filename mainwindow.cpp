@@ -19,9 +19,16 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->listWidget,&QListWidget::itemDoubleClicked,readwin
             ,[&](QListWidgetItem *item){
         hide();
-        readwin->fill_chap_listwid(item);
-        fill_title_listwid(); // 子所以要再次填充书架，原因在于点击了当前漫画，需要把漫画拍到首位
-
+        if(mydata->title_map[item->text()].ischapter)
+            readwin->fill_chapList(item);
+        else
+            readwin->fill_pageList_fromTitle(item);
+        //更新title表的num排序 选中漫画拍第一
+        mydata->change_title_num(item->text());
+        //下载数据库
+        mydata->refresh_title_data();
+        // 所以要再次填充书架，原因在于点击了当前漫画，需要把漫画拍到首位
+        fill_title_listwid();
     });
 
     // 打开文件

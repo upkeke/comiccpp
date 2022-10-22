@@ -142,6 +142,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionDock"/>
+   <addaction name="actionMark"/>
   </widget>
   <action name="actionDock">
    <property name="icon">
@@ -203,6 +204,18 @@
   <action name="actiondis_data">
    <property name="text">
     <string>dis_data</string>
+   </property>
+  </action>
+  <action name="actionMark">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/icon/五角星灰.png</normaloff>:/icon/五角星灰.png</iconset>
+   </property>
+   <property name="text">
+    <string>收藏/取消收藏</string>
+   </property>
+   <property name="toolTip">
+    <string>收藏</string>
    </property>
   </action>
  </widget>

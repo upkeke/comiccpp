@@ -23,20 +23,21 @@ class ReadWin : public QMainWindow
 public:
     explicit ReadWin(QWidget *parent = nullptr);
     ~ReadWin();
-    void fill_chap_listwid(QListWidgetItem *item);
-    void paint_img_nochap();
-    void paint_img_chap(const QString&title);
+    void paint_img();
+
     void get_item();
     void open_folder();  //打开文件夹
 
-    void fill_listwid(QString str,bool flag);
+    void fill_chapList(QListWidgetItem *item);  //右边停靠窗口显示章节名的窗口
+
+    void fill_page_win(QString page_name); //右边停靠窗口显示每一页名字的窗口
+    void fill_pageList_fromTitle(QListWidgetItem *item);
+    void fill_pageList_fromChap(QListWidgetItem *item);
 
     void dis_data(); //显示当前漫画名列表
     void mousePressEvent(QMouseEvent *event)override;
 private:
     Ui::ReadWin * ui;
-    QDir dir;
-    QStringList page_path_list; //文件夹下每张图片的路径
 
     int num;
     QGraphicsScene * scene;
@@ -44,6 +45,9 @@ private:
     QList<QGraphicsPixmapItem*> grp_pix_list;
     QDockWidget *myDock1;
     bool isShow;
+
+    void fill_pageList();
+
 
 
 signals:

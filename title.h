@@ -12,8 +12,7 @@ public:
     int chap_count; //漫画有多少章
     int num; //漫画在主界面的排序
     Title()=default;
-    Title(const QString &title,const QString &title_path,int ischapter
-          ,float progress,int chap_count,int num);
+    Title(const QString &title,const QString &title_path,int ischapter,float progress,int chap_count,int num);
 
 };
 
@@ -27,8 +26,7 @@ public:
     QString chap_path;
     int page_count; //这一章有多少页
     Chapter()=default;
-    Chapter(const QString &title,const QString &chapter
-            ,const QString &chap_path,int page_count);
+    Chapter(const QString &title,const QString &chapter,const QString &chap_path,int page_count);
 };
 
 class Page
@@ -38,14 +36,14 @@ class Page
     //value: / 漫画名：title,/ 章节：chapter,/ 页码 page 页码路径：page_path,
 public:
     QString title;
-    QString chapter;
+    QString chapter ;
     QString page;
     QString page_path;
+    int page_num;
     Page()=default;
-    Page(const QString &title,const QString &chapter
-            ,const QString &page,const QString &page_path)
+    Page(const QString &title,const QString &page,const QString &page_path,int page_num,const QString &chapter= "none")
         :title(title),chapter(chapter)
-        ,page(page),page_path(page_path){}
+        ,page(page),page_path(page_path),page_num(page_num){}
 };
 
 #endif // TITLE_H

@@ -41,7 +41,7 @@ shared_ptr<DataManager> DataManager::instance_db()
 }
 
 
-DataManager::DataManager()
+DataManager::DataManager():chap_map(myqstrcmp),page_map(myqstrcmp)
 {
 
     db = QSqlDatabase::addDatabase("QSQLITE");
@@ -84,7 +84,6 @@ void DataManager::refresh_title_data()
             float progress =query.value("progress").toFloat();
             int chap_count =query.value("chap_count").toInt();
             int num =query.value("num").toInt();  //漫画在主界面的排序
-            //qDebug()<<title<<" "<<title_path<<" "<<ischapter;
             title_map[title]= Title(title,title_path,ischapter,progress,chap_count,num);
             title_list.push_back(title);
         }
@@ -94,7 +93,7 @@ void DataManager::refresh_title_data()
 // 下载 表chapter 的信息
 void DataManager::refresh_chapter_data(const QString &title)
 {
-    chap_list.clear();
+    //chap_list.clear();
     chap_map.clear();
     QString order = QString("select *from chapter where title = '%1'").arg(title);
     if(!query.exec(order))
@@ -107,17 +106,16 @@ void DataManager::refresh_chapter_data(const QString &title)
             QString chapter =query.value("chapter").toString();
             QString chap_path =query.value("chap_path").toString();
             int page_count =query.value("page_count").toInt();
-            //qDebug()<<title<<" "<<title_path<<" "<<ischapter;
             chap_map[chapter]= Chapter(title,chapter,chap_path,page_count);
-            chap_list.push_back(chapter);
+            //chap_list.push_back(chapter);
         }
     }
-    sort(chap_list.begin(),chap_list.end(),myqstrcmp);
+    //sort(chap_list.begin(),chap_list.end(),myqstrcmp);
 }
-//下载页的数据
+/*
+//下载表page的数据  // 通过 title >> page || chapter >> page
 void DataManager::refresh_page_data(const QString &tit_chap, bool ischapter)
 {
-    page_list.clear();
     page_map.clear();
     QString title;
     QString chapter;
@@ -131,9 +129,7 @@ void DataManager::refresh_page_data(const QString &tit_chap, bool ischapter)
         title = tit_chap; //没有章节 tit_chap 代表title
         chapter = "none";
     }
-    QString order = QString("select *from page "
-                            "where title = '%1' and chapter = '%2'")
-            .arg(title,chapter);
+    QString order = QString("select *from page where title = '%1' and chapter = '%2'").arg(title,chapter);
     if(!query.exec(order))
         qDebug()<<"获取失败"<<db.lastError();
     else{
@@ -144,16 +140,45 @@ void DataManager::refresh_page_data(const QString &tit_chap, bool ischapter)
             QString chapter = query.value("chapter").toString();
             QString page = query.value("page").toString();
             QString page_path = query.value("page_path").toString();
-            // QMap<QString,Page> page_map;
-
-            page_map[page] = {title,chapter,page,page_path};
-            page_list.push_back(page);
+            int page_num = query.value("page_path").toInt();
+            page_map[page] = {title,chapter,page,page_path,page_num};
         }
     }
-    // 对page_list重排
-    sort(page_list.begin(),page_list.end(),myqstrcmp);
 }
-
+*/
+void DataManager::down_pageData_byTitle(const QString &title)
+{
+    QString order = QString("select *from page where title = '%1';").arg(title);
+    if(!query.exec(order))
+        qDebug()<<"获取失败"<<db.lastError();
+    else{
+        qDebug()<<"获取成功";
+        while(query.next()){
+            //page名的目录
+            QString page = query.value("page").toString();
+            QString page_path = query.value("page_path").toString();
+            int page_num = query.value("page_path").toInt();
+            page_map[page] = {title,page,page_path,page_num};
+        }
+    }
+}
+void DataManager::down_pageData_byChap(const QString &chapter)
+{
+    QString title = chap_map[chapter].title;
+    QString order = QString("select *from page where title = '%1' and chapter = '%2'").arg(title,chapter);
+    if(!query.exec(order))
+        qDebug()<<"获取失败"<<db.lastError();
+    else{
+        qDebug()<<"获取成功";
+        while(query.next()){
+            //page名的目录
+            QString page = query.value("page").toString();
+            QString page_path = query.value("page_path").toString();
+            int page_num = query.value("page_path").toInt();
+            page_map[page] = {title,page,page_path,page_num,chapter};
+        }
+    }
+}
 //上传数据到表title  //这是通过打开文件修改的title表
 //漫画名：title（Key） / 漫画路径：title_path,是否子文件夹：ischapter
 //章数 chap_count,/ 阅读进度：progress,/ 主窗口的位次：num
@@ -246,8 +271,7 @@ void DataManager::del_title_num(const QString &title)
 //页数：page_count,/备注，如果没有章节，则数据插入表page中对应的页数
 void DataManager::add_chapter(const QString & title_path,const QString &title,bool fa)
 {
-    //auto mytitle = title_map[title_list[3]];
-    //QString title_path = R"(E:\Qt\projuct\ComicByCPP\comic\魔王勇者)"; //\第1话
+
     QDir dir(title_path);
     QString chapter,chap_path,order;
     int page_count; //第几章
@@ -283,19 +307,18 @@ void DataManager::add_chapter(const QString & title_path,const QString &title,bo
         namefilters<<"*jpg"<<"*bmp"<<"*png"<<"jpeg";
         dir.setNameFilters(namefilters);
         list = dir.entryInfoList();
+        int num = 0;
         for(auto &i : list)
         {
             chapter = i.baseName();  //这里的chapter,chap_path 代指page,page_path
             chap_path = i.absoluteFilePath() ;  //方便少声明变量
             order =QString("insert into page("
-                           "title,page,page_path) values"
-                           "('%1','%2','%3');")
-                    .arg(title,chapter,chap_path);
-            //qDebug()<<title<<" "<<comic_page<<" "<<page_path<<" "<<numx;
+                           "title,page,page_path,page_num) values"
+                           "('%1','%2','%3',%4);")
+                    .arg(title,chapter,chap_path,QString::number(num++));
             if(!query.exec(order)) qDebug()<<"add page 失败"<<db.lastError();
         }
         qDebug()<<"page-----";
-        //insert into page(title,comic_page,page_path,index ) values('献上祝福','0','E:/Qt/projuct/ComicByCPP/comic/魔王勇者/第1话/0.jpg',0);
     }
 
 
@@ -312,14 +335,15 @@ void DataManager::add_page(const QString &title, const QString &chapter, const Q
     namefilters<<"*jpg"<<"*bmp"<<"*png"<<"jpeg";
     dir.setNameFilters(namefilters);
     list = dir.entryInfoList();
+    int num =0;
     for(auto &i : list)
     {
         page = i.baseName();
         page_path = i.absoluteFilePath() ;  //方便少声明变量
         order =QString("insert into page("
-                       "title,chapter,page,page_path) values"
-                       "('%1','%2','%3','%4');")
-                .arg(title,chapter,page,page_path);
+                       "title,chapter,page,page_path,page_num) values"
+                       "('%1','%2','%3','%4',%5);")
+                .arg(title,chapter,page,page_path,QString::number(num++));
         //qDebug()<<title<<" "<<comic_page<<" "<<page_path<<" "<<numx;
         if(!query.exec(order)) qDebug()<<"add page 失败"<<db.lastError();
     }
