@@ -14,5 +14,6 @@
         <file>icon/五角星full.png</file>
         <file>icon/消息.png</file>
         <file>data/data.db</file>
+        <file>icon/4.jpg</file>
     </qresource>
 </RCC>

@@ -5,12 +5,12 @@
 class Title
 {
 public:
-    QString title;
-    QString title_path;
-    int ischapter;
-    float progress;
-    int chap_count;
-    int num;
+    QString title;  //漫画名
+    QString title_path; //绝对路径
+    int ischapter;  //有无章节细分
+    float progress; //阅读进度
+    int chap_count; //漫画有多少章
+    int num; //漫画在主界面的排序
     Title()=default;
     Title(const QString &title,const QString &title_path,int ischapter
           ,float progress,int chap_count,int num);
@@ -25,7 +25,7 @@ public:
     QString title;
     QString chapter;
     QString chap_path;
-    int page_count;
+    int page_count; //这一章有多少页
     Chapter()=default;
     Chapter(const QString &title,const QString &chapter
             ,const QString &chap_path,int page_count);

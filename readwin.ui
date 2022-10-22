@@ -23,7 +23,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QToolBox" name="zhanglist">
+     <widget class="QToolBox" name="direct_win">
       <property name="enabled">
        <bool>true</bool>
       </property>
@@ -40,7 +40,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page_3">
        <property name="geometry">
@@ -52,11 +52,11 @@
         </rect>
        </property>
        <attribute name="label">
-        <string>页目录</string>
+        <string>章目录</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QListWidget" name="listWidget"/>
+         <widget class="QListWidget" name="chap_win"/>
         </item>
        </layout>
       </widget>
@@ -65,13 +65,18 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>100</width>
+         <width>274</width>
          <height>244</height>
         </rect>
        </property>
        <attribute name="label">
-        <string>章节目录</string>
+        <string>页目录</string>
        </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QListWidget" name="pag_win"/>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="page_5">
        <property name="geometry">
@@ -118,6 +123,7 @@
    <addaction name="actionBar"/>
    <addaction name="actionset_dock"/>
    <addaction name="actionback"/>
+   <addaction name="actiondis_data"/>
   </widget>
   <widget class="QToolBar" name="toolBar_2">
    <property name="windowTitle">
@@ -192,6 +198,11 @@
    </property>
    <property name="text">
     <string>back</string>
+   </property>
+  </action>
+  <action name="actiondis_data">
+   <property name="text">
+    <string>dis_data</string>
    </property>
   </action>
  </widget>

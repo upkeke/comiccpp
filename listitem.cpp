@@ -1,7 +1,7 @@
 ﻿#include "listitem.h"
 #include "ui_listitem.h"
 
-listItem::listItem(QString str, bool flag,QWidget *parent) :
+listItem::listItem(const QString &str, bool flag,QWidget *parent) :
     QWidget(parent),
     ui(new Ui::listItem),str(str),flag(flag)
 {

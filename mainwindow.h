@@ -2,14 +2,14 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include"readwin.h"
-
+#include"datamanager.h"
+#include<QThread>
+#include"worker.h"
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
 }
 QT_END_NAMESPACE
-
 
 class ReadWin;
 class MainWindow : public QMainWindow
@@ -19,15 +19,17 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-
+    void fill_title_listwid();
 private:
     Ui::MainWindow *ui;
     ReadWin * readwin;
+    QThread* t1;
+    //QThread t1;
 signals:
     void dis_comic(QString title);
+    void begin_work(int x);
 private slots:
-    void on_pushButton_2_clicked();
-    void on_pushButton_3_clicked();
+
 };
 
 #endif // MAINWINDOW_H
