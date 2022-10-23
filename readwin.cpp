@@ -37,7 +37,7 @@ ReadWin::ReadWin(QWidget *parent)
     //工具栏的open按钮 添加文件夹，即漫画名的路径
     connect(ui->actionopen,&QAction::triggered,this,&ReadWin::open_folder);
     //listwidget 的信号槽  //点击切换页面
-    connect(ui->chap_win,&QListWidget::itemClicked,this,&ReadWin::fill_pageList_fromChap);
+    connect(ui->chap_win,&QListWidget::itemDoubleClicked,this,&ReadWin::fill_pageList_fromChap);
 
     //回主界面
     connect(ui->actionback,&QAction::triggered,[&](){
@@ -82,19 +82,20 @@ void ReadWin::fill_pageList_fromTitle(QListWidgetItem *item)
     mydata->down_pageData_byTitle(item->text()); //下载指定的漫画的page到mydata->page_map中
     fill_pageList();
     //直接打印图片
-    paint_img();
+    display_page();
 }
 void ReadWin::fill_pageList_fromChap(QListWidgetItem *item)
 {
+    item->setHidden(true);
     auto temp =ui->chap_win->itemWidget(item);
     listItem* child_item = static_cast<listItem*>(temp);
     mydata->down_pageData_byChap(child_item->name);//下载指定的章节的page到mydata->page_map中
     fill_pageList();
-    paint_img();
+    display_page();
 }
 void ReadWin::fill_pageList()
 {
-    ui->pag_win->clear();
+    ui->pag_win->clear(); // 不用clear，字需要该
     //mydata->page_map 只含有 选中章节的page信息
     for(auto& i:mydata->page_map)
     {
@@ -104,6 +105,25 @@ void ReadWin::fill_pageList()
         ui->pag_win->addItem(fuItem);
         ui->pag_win->setItemWidget(fuItem,ziItem);
     }
+}
+void ReadWin::display_page()
+{
+   scene->clear();
+   pixmapItems.clear();
+   //int w,h;
+   //QPixmap pix(mydata->page_map.begin()->second.page_path);
+   //w=pix.width();
+   int h = 0;
+   for(auto& pa:mydata->page_map)
+   {
+       QPixmap pix(pa.second.page_path);
+       QGraphicsPixmapItem * pixitem = new QGraphicsPixmapItem(pix);
+       pixmapItems.push_back(pixitem);
+       scene->addItem(pixitem);
+       pixitem->setPos(0,h);
+       h+=pix.height();
+   }
+   ui->myview->setScene(scene);
 }
 
 void ReadWin::paint_img()
@@ -134,7 +154,7 @@ void ReadWin::paint_img()
             h+=pix.height()/2;
         }
         scene->addItem(pixitem);
-        grp_pix_list.append(pixitem);
+        pixmapItems.append(pixitem);
     }
     ui->myview->setScene(scene);
     //ui->myview->centerOn(this->width()/2,this->height()/2);
@@ -147,12 +167,12 @@ void ReadWin::get_item()
     //auto item=ui->myview->itemAt(100,y);
     auto item=ui->myview->itemAt(100,100);
     QGraphicsPixmapItem *pixitem=static_cast<QGraphicsPixmapItem*>(item);
-    qDebug()<<"当前页数是"<<grp_pix_list.indexOf(pixitem);
+    qDebug()<<"当前页数是"<<pixmapItems.indexOf(pixitem);
     qDebug()<<"图元的尺寸"<<pixitem->pixmap().size();
     qDebug()<<"滚轮顶端y坐标"<<y ;
     qDebug()<<"滚轮左端端x坐标"<<ui->myview->horizontalScrollBar()->value();
     QString str =QString("当前页数是%1,图元的尺寸%2,%3")
-            .arg(grp_pix_list.indexOf(pixitem))
+            .arg(pixmapItems.indexOf(pixitem))
             .arg(pixitem->pixmap().size().width())
             .arg(pixitem->pixmap().size().height());
     ui->statusbar->showMessage(str);

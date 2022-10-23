@@ -24,6 +24,7 @@ public:
     explicit ReadWin(QWidget *parent = nullptr);
     ~ReadWin();
     void paint_img();
+    void display_page();
 
     void get_item();
     void open_folder();  //打开文件夹
@@ -42,7 +43,7 @@ private:
     int num;
     QGraphicsScene * scene;
     //QGraphicsView *view;
-    QList<QGraphicsPixmapItem*> grp_pix_list;
+    QList<QGraphicsPixmapItem*> pixmapItems;
     QDockWidget *myDock1;
     bool isShow;
 
