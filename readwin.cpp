@@ -42,12 +42,11 @@ ReadWin::ReadWin(QWidget *parent)
     //回主界面
     connect(ui->actionback,&QAction::triggered,[&](){
         emit backMainScene();
+        //ui->pag_win->clear();
+        pixmapItems.clear();
         scene->clear();
         hide();
     });
-    //显示当前漫画名列表
-    connect(ui->actiondis_data,&QAction::triggered,this,&ReadWin::dis_data);
-
 }
 
 ReadWin::~ReadWin()
@@ -56,126 +55,123 @@ ReadWin::~ReadWin()
     delete ui;
 }
 
-void ReadWin::fill_chapList(QListWidgetItem *item)
+void ReadWin::fill_chapList(const QString& title)
 {
-    show();
-    setWindowTitle(item->text());
-    ui->chap_win->clear();
+    setWindowTitle(title);
+    current_title = title;
+
+    int last_chaper_count = ui->chap_win->count();
     ui->pag_win->clear();
-    mydata->refresh_chapter_data(item->text()); //下载章节信息
-    for(auto& i:mydata->chap_map)
+    mydata->refresh_chapter_data(title); //下载章节信息
+
+    int current_chaper_count = mydata->chap_map.size();
+    qDebug()<<"当前的漫画章节数1 "<<last_chaper_count<<"选中漫画章节数"<<current_chaper_count;
+    // 这一步大费周章的原因，由于章节的都是第一章，第二章。。。。 如果list窗口已经有这些，
+    //不必把他们全部析构调然后重新生成，只需要把多余的部分析构调，缺少的部分补充，
+    //保证chapter_count和current_chaper_count同步
+    if(last_chaper_count>current_chaper_count)
     {
-        QListWidgetItem * fuItem = new QListWidgetItem;
-        listItem *ziItem= new listItem(i.first,true);
-        fuItem->setSizeHint(QSize(ziItem->width(),ziItem->height()));
-        ui->chap_win->addItem(fuItem);
-        ui->chap_win->setItemWidget(fuItem,ziItem);
+        while (last_chaper_count>current_chaper_count) {
+            ui->chap_win->takeItem(last_chaper_count-1);
+            --last_chaper_count;
+        }
     }
+    else
+    {
+        for(;last_chaper_count<current_chaper_count;)
+        {
+            QString str = QString("第%1章").arg(last_chaper_count+1);
+            QListWidgetItem * fuItem = new QListWidgetItem;
+            listItem *ziItem= new listItem(str,true);
+            fuItem->setSizeHint(QSize(ziItem->width(),ziItem->height()));
+            ui->chap_win->addItem(fuItem);
+            ui->chap_win->setItemWidget(fuItem,ziItem);
+            last_chaper_count++;
+        }
+    }
+    qDebug()<<"当前的漫画章节数2 "<<last_chaper_count<<"选中漫画章节数"<<current_chaper_count;
 
 }
-void ReadWin::fill_pageList_fromTitle(QListWidgetItem *item)
+void ReadWin::fill_pageList_fromTitle(const QString& title)
 {
-    show();
-    setWindowTitle(item->text());
-    ui->chap_win->clear();
-    ui->pag_win->clear();
-    mydata->down_pageData_byTitle(item->text()); //下载指定的漫画的page到mydata->page_map中
+
+    setWindowTitle(title);
+    ui->chap_win->clear(); //没有章节目录，清空
+    //ui->pag_win->clear();
+    mydata->down_pageData_byTitle(title); //下载指定的漫画的page到mydata->page_map中
     fill_pageList();
     //直接打印图片
     display_page();
 }
 void ReadWin::fill_pageList_fromChap(QListWidgetItem *item)
 {
-    item->setHidden(true);
-    auto temp =ui->chap_win->itemWidget(item);
+
+    auto temp = ui->chap_win->itemWidget(item);
     listItem* child_item = static_cast<listItem*>(temp);
     mydata->down_pageData_byChap(child_item->name);//下载指定的章节的page到mydata->page_map中
+    current_chapter = child_item->name;
     fill_pageList();
     display_page();
 }
 void ReadWin::fill_pageList()
 {
-    ui->pag_win->clear(); // 不用clear，字需要该
-    //mydata->page_map 只含有 选中章节的page信息
-    for(auto& i:mydata->page_map)
+    int current_page_count = mydata->page_map.size();
+    int last_page_count = ui->pag_win->count();
+    qDebug()<<"当前选中章节页数1 "<<last_page_count<<"选中章节页数"<<current_page_count;
+    // 这一步大费周章的原因，由于章节的都是第一章，第二章。。。。 如果list窗口已经有这些，
+    //不必把他们全部析构调然后重新生成，只需要把多余的部分析构调，缺少的部分补充，
+    //保证chapter_count和current_chaper_count同步
+    if(last_page_count>current_page_count)
     {
-        QListWidgetItem * fuItem = new QListWidgetItem;
-        listItem *ziItem= new listItem(i.first,true);
-        fuItem->setSizeHint(QSize(ziItem->width(),ziItem->height()));
-        ui->pag_win->addItem(fuItem);
-        ui->pag_win->setItemWidget(fuItem,ziItem);
+        while (last_page_count>current_page_count) {
+            ui->pag_win->takeItem(last_page_count-1);
+            --last_page_count;
+        }
     }
+    else
+    {
+        for(;last_page_count<current_page_count;)
+        {
+            QString str = QString("第%1页").arg(last_page_count+1);
+            QListWidgetItem * fuItem = new QListWidgetItem;
+            listItem *ziItem= new listItem(str,true);
+            fuItem->setSizeHint(QSize(ziItem->width(),ziItem->height()));
+            ui->pag_win->addItem(fuItem);
+            ui->pag_win->setItemWidget(fuItem,ziItem);
+            last_page_count++;
+        }
+    }
+    qDebug()<<"当前的选中章节页数2 "<<last_page_count<<"选中章节页数"<<current_page_count;
+
 }
 void ReadWin::display_page()
 {
-   scene->clear();
-   pixmapItems.clear();
-   //int w,h;
-   //QPixmap pix(mydata->page_map.begin()->second.page_path);
-   //w=pix.width();
-   int h = 0;
-   for(auto& pa:mydata->page_map)
-   {
-       QPixmap pix(pa.second.page_path);
-       QGraphicsPixmapItem * pixitem = new QGraphicsPixmapItem(pix);
-       pixmapItems.push_back(pixitem);
-       scene->addItem(pixitem);
-       pixitem->setPos(0,h);
-       h+=pix.height();
-   }
-   ui->myview->setScene(scene);
-}
-
-void ReadWin::paint_img()
-{
-    scene->clear();
-    int w,h;
-    QPixmap pix(mydata->page_map.begin()->second.page_path);
-    w=pix.width();
-    //h=pix.height();
-    resize(w,500);
-    h=0;
-    for(auto &pa:mydata->page_map)
+    qDebug()<<"开始打印每一页";
+    int last_page_count = pixmapItems.size();
+    int h = 0;
+    int current_page_count = mydata->page_map.size();
+    auto iter =  mydata->page_map.cbegin();
+    for(int i=0;i<current_page_count;++i)
     {
-        //mydata->page_list[i] 获得页码string
-        QString pt = mydata->page_map.begin()->second.page_path;
-        QPixmap pix(pt);
-        QGraphicsPixmapItem * pixitem = new QGraphicsPixmapItem(pix);
-
-        if(pix.width()<1500)
-        {
-            pixitem->setPos(0,h);
-            h+=pix.height();
+        QPixmap pix(iter->second.page_path);
+        if(i<last_page_count){
+            pixmapItems[i]->setPixmap(pix);
         }
-        else
-        {
-            pixitem->setScale(0.5); //经历缩放后，图元的原点由左上角转到图元中心
-            pixitem->setPos(0,h);
-            h+=pix.height()/2;
+        else {
+            QGraphicsPixmapItem * pixitem = new QGraphicsPixmapItem(pix);
+            pixmapItems.push_back(pixitem);
+            scene->addItem(pixitem);
         }
-        scene->addItem(pixitem);
-        pixmapItems.append(pixitem);
+        pixmapItems[i]->setPos(0,h);
+        ++iter;
+        h+=pix.height();
+    }
+    for(int i =last_page_count-1 ;i>=current_page_count;--i)
+    {
+        scene->removeItem(pixmapItems[i]);
+        pixmapItems.removeLast();
     }
     ui->myview->setScene(scene);
-    //ui->myview->centerOn(this->width()/2,this->height()/2);
-    ui->myview->centerOn(0,0);//场景的的0，0绝对到不了视图的中心，但是这样可以避免菜单工具栏的误差，保证场景视图左上角重合
-}
-
-void ReadWin::get_item()
-{
-    int y=ui->myview->verticalScrollBar()->value();
-    //auto item=ui->myview->itemAt(100,y);
-    auto item=ui->myview->itemAt(100,100);
-    QGraphicsPixmapItem *pixitem=static_cast<QGraphicsPixmapItem*>(item);
-    qDebug()<<"当前页数是"<<pixmapItems.indexOf(pixitem);
-    qDebug()<<"图元的尺寸"<<pixitem->pixmap().size();
-    qDebug()<<"滚轮顶端y坐标"<<y ;
-    qDebug()<<"滚轮左端端x坐标"<<ui->myview->horizontalScrollBar()->value();
-    QString str =QString("当前页数是%1,图元的尺寸%2,%3")
-            .arg(pixmapItems.indexOf(pixitem))
-            .arg(pixitem->pixmap().size().width())
-            .arg(pixitem->pixmap().size().height());
-    ui->statusbar->showMessage(str);
 
 }
 
@@ -218,6 +214,4 @@ void ReadWin::mousePressEvent(QMouseEvent *event)
         ui->direct_win->hide();
     }
 }
-
-
 

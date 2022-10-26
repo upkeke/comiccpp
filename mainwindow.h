@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include"datamanager.h"
 #include<QThread>
+#include<QListWidgetItem>
 #include"worker.h"
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -20,6 +21,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void fill_title_listwid();
+    void change_title_listwid(QListWidgetItem *item);
 private:
     Ui::MainWindow *ui;
     ReadWin * readwin;

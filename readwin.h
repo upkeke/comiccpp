@@ -23,16 +23,13 @@ class ReadWin : public QMainWindow
 public:
     explicit ReadWin(QWidget *parent = nullptr);
     ~ReadWin();
-    void paint_img();
-    void display_page();
 
-    void get_item();
     void open_folder();  //打开文件夹
 
-    void fill_chapList(QListWidgetItem *item);  //右边停靠窗口显示章节名的窗口
+    void fill_chapList(const QString& title);  //右边停靠窗口显示章节名的窗口
 
     void fill_page_win(QString page_name); //右边停靠窗口显示每一页名字的窗口
-    void fill_pageList_fromTitle(QListWidgetItem *item);
+    void fill_pageList_fromTitle(const QString& title);
     void fill_pageList_fromChap(QListWidgetItem *item);
 
     void dis_data(); //显示当前漫画名列表
@@ -46,8 +43,11 @@ private:
     QList<QGraphicsPixmapItem*> pixmapItems;
     QDockWidget *myDock1;
     bool isShow;
+    QString current_title;
+    QString current_chapter;
 
     void fill_pageList();
+    void display_page();
 
 
 

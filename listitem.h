@@ -17,7 +17,7 @@ public:
 
     ~listItem();
     bool flag;
-    QString name;
+    QString name; //读到的章节，或者页的文件名
     void display_favor(); //显示 收藏
 private slots:
     void on_radioButton_toggled(bool checked);

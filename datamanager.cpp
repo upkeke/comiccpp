@@ -96,6 +96,7 @@ void DataManager::refresh_chapter_data(const QString &title)
     //chap_list.clear();
     chap_map.clear();
     QString order = QString("select *from chapter where title = '%1'").arg(title);
+    int i = 1;
     if(!query.exec(order))
         qDebug()<<"获取失败"<<db.lastError();
     else{
@@ -104,10 +105,10 @@ void DataManager::refresh_chapter_data(const QString &title)
             //漫画名的目录
             QString title =query.value("title").toString();
             QString chapter =query.value("chapter").toString();
+            QString chapter_key = QString("第%1章").arg(i++);
             QString chap_path =query.value("chap_path").toString();
             int page_count =query.value("page_count").toInt();
-            chap_map[chapter]= Chapter(title,chapter,chap_path,page_count);
-            //chap_list.push_back(chapter);
+            chap_map[chapter_key]= Chapter(title,chapter,chap_path,page_count);
         }
     }
     //sort(chap_list.begin(),chap_list.end(),myqstrcmp);
@@ -148,6 +149,7 @@ void DataManager::refresh_page_data(const QString &tit_chap, bool ischapter)
 */
 void DataManager::down_pageData_byTitle(const QString &title)
 {
+    page_map.clear();
     QString order = QString("select *from page where title = '%1';").arg(title);
     if(!query.exec(order))
         qDebug()<<"获取失败"<<db.lastError();
@@ -162,9 +164,11 @@ void DataManager::down_pageData_byTitle(const QString &title)
         }
     }
 }
-void DataManager::down_pageData_byChap(const QString &chapter)
+void DataManager::down_pageData_byChap(const QString &chapter_key)
 {
-    QString title = chap_map[chapter].title;
+    page_map.clear();
+    QString title = chap_map[chapter_key].title;
+    QString chapter = chap_map[chapter_key].chapter;
     QString order = QString("select *from page where title = '%1' and chapter = '%2'").arg(title,chapter);
     if(!query.exec(order))
         qDebug()<<"获取失败"<<db.lastError();
